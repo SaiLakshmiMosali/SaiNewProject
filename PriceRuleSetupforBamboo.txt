@@ -1,0 +1,70 @@
+package com.mckesson.medsurg.pricing.pricinghierarchy.testcases;
+
+import java.io.File;
+
+import org.testng.annotations.Test;
+
+import com.mckesson.medsurg.pricing.common.PreRequisiteData;
+import com.mckesson.medsurg.pricing.common.PreRequisites;
+import com.mckesson.medsurg.pricing.pricinghierarchy.pom.PricingConstants;
+//import com.mckesson.medsurg.pricing.pricinghierarchy.pom.PricingLoginPage;
+import com.mckesson.medsurg.pricing.pricinghierarchy.pom.PricingPageUtil;
+
+public class PriceRuleSetupforBamboo extends PricingBaseTest{
+	PreRequisiteData pData;
+	PreRequisites preReq;
+	generatePriceRuleSetupDataForSmoke prSetupData;
+	PriceLevelHierarchyPriceRuleSetup_Level6ToLevel30 lvl;
+	
+	@Test
+	public void setUpPriceRuleforBamboo() throws Exception{
+		
+		String SourceFilePath	= PricingConstants.CUSTOMER_CREATION_TESTDATAPATH;
+		String DesFilePath		= PricingConstants.PRICING_HIERARCHY_DATA_SETUP;
+		String DesSheetNm		= "Global";
+		String SourceSheetNm	= "CustomerCreation";
+		String currentPath;
+		
+		File file = new File(".");
+		//System.out.println(file.getParent());
+		//System.out.println(file.getPath());
+		System.out.println(file.getCanonicalPath());
+		System.out.println();
+		currentPath = file.getCanonicalPath();
+		SourceFilePath = currentPath+SourceFilePath;
+		DesFilePath = currentPath+DesFilePath;
+		System.out.println(SourceFilePath);
+		
+		preReq 					= new PreRequisites();
+		prSetupData 			= new generatePriceRuleSetupDataForSmoke();
+		lvl						= new PriceLevelHierarchyPriceRuleSetup_Level6ToLevel30();
+		//PricingLoginPage pricingLoginPage 	= getPage(PricingLoginPage.class);
+		
+		PricingPageUtil.goToLoginPage(getDriver());
+        //Create BillTo Customer
+        pData = new PreRequisiteData(SourceFilePath,DesFilePath,DesSheetNm,SourceSheetNm,"X","","",2);
+        preReq.createCustomer(pData);
+        
+        //Create ShipTo Customer
+        pData = new PreRequisiteData(SourceFilePath,DesFilePath,DesSheetNm,SourceSheetNm,"S","","Y",2);
+        preReq.createCustomer(pData);
+        
+        //Setup Price Rule Data
+        prSetupData.generatePriceRuleSetupData();
+        
+        //LPG Setup
+        pData = new PreRequisiteData(SourceFilePath,DesFilePath,DesSheetNm,SourceSheetNm,2);
+        preReq.lpgSetup(pData);
+        //PCCA Setup
+        preReq.pccaSetup(pData);
+        
+        //Setup Price Rule Data
+        prSetupData.generatePriceRuleSetupData();
+        
+        //Price Rule Setup for level 6 to 30
+        lvl.priceLevelHierarchyPriceRuleSetup_Level6ToLevel30();
+             
+	}
+
+
+}
